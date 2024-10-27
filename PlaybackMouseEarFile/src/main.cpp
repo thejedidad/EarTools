@@ -66,7 +66,7 @@ void pulseIR(long microsecs, int hilo) {
         // 38 kHz is about 13 microseconds high and 13 microseconds low
         digitalWrite(IRledPin, hilo);  // this takes about 5 microseconds to happen
         delayMicroseconds(8);         // hang out for 8 microseconds
-        digitalWrite(IRledPin, LOW);   // this also takes about 5 microseconds
+        digitalWrite(IRledPin, HIGH);   // this also takes about 5 microseconds
         delayMicroseconds(8);         // hang out for 8 microseconds
         // so 26 microseconds altogether
         microsecs -= 26;
@@ -79,13 +79,13 @@ void sendbyte(byte b)
 {
     // Data consists of 1 Start Bit, 8 Data Bits, 1 Stop Bit, and NO parity bit
     // 1 bit is 417 microseconds @ 2400 baud
-    pulseIR(400, HIGH); // Start bit
+    pulseIR(400, LOW); // Start bit
     byte i=0;
     while(i<8)
     {
-        pulseIR(400, (b>>(i++)&1)?LOW:HIGH); // Data Bits
+        pulseIR(400, (b>>(i++)&1)?HIGH:LOW); // Data Bits
     }
-    pulseIR(400, LOW); // Stop bit
+    pulseIR(400, HIGH); // Stop bit
 }
 
 void setup()
