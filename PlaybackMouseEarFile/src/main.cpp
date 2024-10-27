@@ -48,7 +48,7 @@ File datafile;
 // The clock drifts while we send bytes, this throws off the show timing.
 unsigned long clockdrift = 0;
 
-#define SeekOffset 64 // Seek offset for header, if any.
+#define SeekOffset 0 // Seek offset for header, if any.
 
 #define ShowOffset 0x00000000   // Offset of show start time, for seeking in.
 
@@ -66,7 +66,7 @@ void pulseIR(long microsecs, int hilo) {
         // 38 kHz is about 13 microseconds high and 13 microseconds low
         digitalWrite(IRledPin, hilo);  // this takes about 5 microseconds to happen
         delayMicroseconds(8);         // hang out for 8 microseconds
-        digitalWrite(IRledPin, HIGH);   // this also takes about 5 microseconds
+        digitalWrite(IRledPin, LOW);   // this also takes about 5 microseconds
         delayMicroseconds(8);         // hang out for 8 microseconds
         // so 26 microseconds altogether
         microsecs -= 26;
@@ -79,13 +79,13 @@ void sendbyte(byte b)
 {
     // Data consists of 1 Start Bit, 8 Data Bits, 1 Stop Bit, and NO parity bit
     // 1 bit is 417 microseconds @ 2400 baud
-    pulseIR(400, LOW); // Start bit
+    pulseIR(400, HIGH); // Start bit
     byte i=0;
     while(i<8)
     {
-        pulseIR(400, (b>>(i++)&1)?HIGH:LOW); // Data Bits
+        pulseIR(400, (b>>(i++)&1)?LOW:HIGH); // Data Bits
     }
-    pulseIR(400, HIGH); // Stop bit
+    pulseIR(400, LOW); // Stop bit
 }
 
 void setup()
@@ -101,12 +101,13 @@ void setup()
         return;
     }
 
-    datafile = SPIFFS.open("/MRDF00007.TXT");
+    datafile = SPIFFS.open("/MRDF0007.TXT");
     if(!datafile){
         Serial.println("Failed to open file for reading");
         return;
     }
     if(datafile) Serial.println("File opened");
+
     datafile.seek(SeekOffset);
 
     pinMode(IRledPin, OUTPUT);
@@ -130,7 +131,7 @@ long longfromhex(byte hexed[8])
     for(int i = 0; i<8; i++)
     {
         if(hexed[i]>'9') hexed[i] -= 7;
-        //Serial.print(hexed[i]-'0', HEX);
+        // Serial.print(hexed[i]-'0', HEX);
         tmpl+=((long)(hexed[i]-'0'))<<(4*(7-i)); // Bitshift each nibble. Have to be careful where the (long) is.
     }
     return tmpl;
@@ -157,10 +158,10 @@ void loop()
         outbuf[ptr++]=b;
     }
 
-    while((millis()+ShowOffset+(clockdrift/1000))<(offset-(ptr*4))) // Show start offset.
+    while((offset-(ptr*4))>(millis()+ShowOffset+(clockdrift/1000))) // Show start offset.
     {
         // Wait for cue
-    }
+   }
 
     if(offset>ShowOffset)
     {
