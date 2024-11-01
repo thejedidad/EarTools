@@ -64,10 +64,10 @@ void pulseIR(long microsecs, int hilo) {
 
     while (microsecs > 0) {
         // 38 kHz is about 13 microseconds high and 13 microseconds low
-        digitalWrite(IRledPin, hilo);  // this takes about 5 microseconds to happen
-        delayMicroseconds(8);         // hang out for 8 microseconds
-        digitalWrite(IRledPin, LOW);   // this also takes about 5 microseconds
-        delayMicroseconds(8);         // hang out for 8 microseconds
+        digitalWrite(IRledPin, hilo);  // on a 2.4 GHz ESP-32 this call in nearly instantaneous
+        delayMicroseconds(12);         // hang out for 13 microseconds
+        digitalWrite(IRledPin, LOW);   // on a 2.4 GHz ESP-32 this call in nearly instantaneous
+        delayMicroseconds(12);         // hang out for 13 microseconds
         // so 26 microseconds altogether
         microsecs -= 26;
     }
